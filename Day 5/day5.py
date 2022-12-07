@@ -18,9 +18,9 @@ crate_stacks = [
 ]
 
 def parse_instruction(movement_instruction):
-    regex_pattern = "([0-9]*)"
+    regex_pattern = "([0-9]*)" # pull out the numbers (move 3 from 8 to 9 --> 3, 8, 9)
     results = re.findall(regex_pattern, movement_instruction)
-    relevant_numbers = [int(x) for x in results if x != ""]
+    relevant_numbers = [int(x) for x in results if x != ""] # remove blanks and turn string numbers to integers
 
     return relevant_numbers
 

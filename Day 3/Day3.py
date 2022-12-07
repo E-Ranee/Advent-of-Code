@@ -4,9 +4,10 @@ f = open(f"input.txt", "r")
 data = f.readlines()
 f.close()
 
-alphabet = list(string.ascii_letters)
+alphabet = list(string.ascii_letters) # produces a list of a-z, A-Z
 
 def identify_common_element(rucksack):
+    """Turns each half of the rucksack into a set and returns the intersection of the sets"""
     length_of_half = int(len(rucksack)/2)
     first_half = set(rucksack[0:length_of_half])
     second_half = set(rucksack[length_of_half:])
@@ -31,7 +32,7 @@ badge_priority_total = 0
 
 for items in data:
     current_group.append(set(items.strip()))
-    if len(current_group) == 3:
+    if len(current_group) == 3: # Groups the data into threes for further processing
         groups.append(current_group)
         current_group = []
 
