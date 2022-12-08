@@ -1,5 +1,3 @@
-import pprint
-
 f = open(f"input.txt", "r")
 # f = open(f"example_input.txt", "r")
 data = f.readlines()
