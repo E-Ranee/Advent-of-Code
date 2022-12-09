@@ -10,50 +10,6 @@ f.close()
 # If they are touching diagonally and H moves more in that direction, T moves diagonally to where H was
 # HT start in the same position (overlapping)
 
-h_coordinates = (0,0)
-t_coordinates = (0,0)
-
-list_of_visited_locations = [(0,0)]
-
-def move_rope(instruction):
-    # instruction is a string of format "R 4"
-    direction, quantity = instruction.split()
-
-    for i in range(int(quantity)):
-        apply_direction(direction)
-
-def apply_direction(direction):
-    global h_coordinates, t_coordinates
-    # direction is a string which is U/D/L/R
-
-    direction_dict = {
-        "R": (1,0),
-        "L": (-1,0),
-        "U": (0,1),
-        "D": (0,-1)
-    }
-
-    coord_change = direction_dict[direction]
-    new_h_coordinates = tuple(sum(x) for x in zip(h_coordinates, coord_change))
-    distance_between_h_and_t = sqrt(abs(new_h_coordinates[0] - t_coordinates[0])**2 + abs(new_h_coordinates[1]-t_coordinates[1])**2)
-
-    # If H is ever two steps directly up/down/left/right of the tail, the tail moves one step in that direction (to where H was)
-    if distance_between_h_and_t == 2:
-        t_coordinates = tuple(sum(x) for x in zip(t_coordinates, coord_change))
-        list_of_visited_locations.append(t_coordinates)
-    # If they are touching diagonally and H moves more in that direction, T moves diagonally to where H was
-    elif distance_between_h_and_t > 2:
-        t_coordinates = h_coordinates
-        list_of_visited_locations.append(t_coordinates)
-    h_coordinates = new_h_coordinates
-    
-for movement in data:
-    move_rope(movement)
-
-# print(len(set(list_of_visited_locations)))
-
-################################################################
-
 rope_dict = {
     "H": (0,0),
     "1": (0,0),
@@ -67,6 +23,7 @@ rope_dict = {
     "9": (0,0)
 }
 
+list_of_visited_locations_part_1 = [(0,0)]
 list_of_visited_locations = [(0,0)]
 
 def move_rope(instruction):
@@ -103,6 +60,8 @@ def apply_direction(direction, head, tail):
     rope_dict[head] = new_h_coordinates
     rope_dict[tail] = tail_coord
 
+    list_of_visited_locations_part_1.append(tail_coord)
+
 def follow_after(head, tail):
     head_coord = rope_dict[head]
     tail_coord = rope_dict[tail]
@@ -134,4 +93,5 @@ def follow_after(head, tail):
 for movement in data:
     move_rope(movement.strip())
 
+print(len(set(list_of_visited_locations_part_1)))
 print(len(set(list_of_visited_locations)))
