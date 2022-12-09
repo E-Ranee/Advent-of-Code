@@ -24,7 +24,7 @@ rope_dict = {
 }
 
 list_of_visited_locations_part_1 = [(0,0)]
-list_of_visited_locations = [(0,0)]
+list_of_visited_locations_part_2 = [(0,0)]
 
 def move_rope(instruction):
     # instruction is a string of format "R 4"
@@ -88,10 +88,10 @@ def follow_after(head, tail):
     rope_dict[tail] = tail_coord
 
     if tail == "9":
-        list_of_visited_locations.append(tail_coord)
+        list_of_visited_locations_part_2.append(tail_coord)
 
 for movement in data:
     move_rope(movement.strip())
 
 print(len(set(list_of_visited_locations_part_1)))
-print(len(set(list_of_visited_locations)))
+print(len(set(list_of_visited_locations_part_2)))
