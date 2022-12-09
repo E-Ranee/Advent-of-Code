@@ -22,7 +22,7 @@ def visible_trees(list_of_numbers):
     # Example: 30733
     max_index = len(list_of_numbers)
     iterate = True
-    tree_height = 9
+    tree_height = max(list_of_numbers)
 
     list_of_indices = []
 
