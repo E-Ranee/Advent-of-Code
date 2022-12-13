@@ -1,4 +1,5 @@
 import ast
+from functools import cmp_to_key
 
 f = open(f"input.txt", "r")
 # f = open(f"example_input.txt", "r")
@@ -6,11 +7,13 @@ data = f.readlines()
 f.close()
 
 list_of_pairs = []
+list_of_singles = []
 temp_list = []
 
 for line in data:
     if line != "\n":
         temp_list.append(ast.literal_eval(line.strip()))
+        list_of_singles.append(ast.literal_eval(line.strip()))
     else:
         list_of_pairs.append(temp_list)
         temp_list = []
@@ -72,7 +75,13 @@ def compare_pairs(left, right):
         return None
 
 
-
+def truth_to_value(truth):
+    if truth == True:
+        return -1
+    elif truth == False:
+        return 1
+    else:
+        return 0
 
 counter = 1
 list_of_indices = []
@@ -82,3 +91,16 @@ for pairs in list_of_pairs:
     counter += 1
 
 print(sum(list_of_indices))
+
+divider1 = [[2]]
+divider2 = [[6]]
+
+list_of_singles.append(divider1)
+list_of_singles.append(divider2)
+
+sorted_list = sorted(list_of_singles, key=cmp_to_key(lambda x, y: truth_to_value(compare_pairs(x,y))))
+
+divider1_index = sorted_list.index(divider1) + 1
+divider2_index = sorted_list.index(divider2) + 1
+
+print(divider1_index * divider2_index)
