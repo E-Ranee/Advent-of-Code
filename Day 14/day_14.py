@@ -1,5 +1,5 @@
-# f = open(f"input.txt", "r")
-f = open(f"example_input.txt", "r")
+f = open(f"input.txt", "r")
+# f = open(f"example_input.txt", "r")
 data = f.readlines()
 f.close()
 
@@ -156,9 +156,9 @@ counter = 0
 while sand_is_falling:
     result = sand_fall(sand_source_location, rock_paths_coordinates, sand_locations, bounds)
     # print(result)
-    # counter += 1
-    # if counter % 100 == 0:
-    #     print(counter)
+    counter += 1
+    if counter % 100 == 0:
+        print(counter)
 
     if result == None:
         sand_is_falling = False
