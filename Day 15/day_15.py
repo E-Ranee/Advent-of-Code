@@ -37,14 +37,50 @@ def calculate_affected_coordinates(y_level, sensor_x, sensor_y, beacon_x, beacon
     return coordinates_affected
 
 
-y_level = 10 # part 1
-y_level = 2000000 # part 2
-positions_present = []
-for pair in instructions:
-    positions_present += calculate_affected_coordinates(y_level, pair[0], pair[1], pair[2], pair[3])
+def part1(instructions, all_coords, y_level):
 
-# remove beacons and sensors from the list, ignore duplicates
-positions_present = list(set(positions_present) - set(all_coords)) 
+    positions_present = []
+    for pair in instructions:
+        positions_present += calculate_affected_coordinates(y_level, pair[0], pair[1], pair[2], pair[3])
 
-print(len(set(positions_present)))
+    # remove beacons and sensors from the list, ignore duplicates
+    positions_present = list(set(positions_present) - set(all_coords)) 
+
+    print(len(set(positions_present)))
+
+# part1(instructions, all_coords, 10) # example data
+# part1(instructions, all_coords, 2000000) # real data
+
+#####################################################################################
+
+distances_list = [] # [sensor_x, sensor_y, signal_radius]
+for pair in instructions: # [sensor_x, sensor_y, beacon_x, beacon_y]
+    distance = manhattan_distance(pair[0], pair[1], pair[2], pair[3])
+    distances_list.append( [pair[0], pair[1], distance] )
+
+dimension_x = dimension_y = 20 # example input
+dimension_x = dimension_y = 4000000 # real_input
+
+def in_range(x1, y1, triple_entry):
+    signal_radius = triple_entry[2]
+    local_distance = manhattan_distance(x1, y1, triple_entry[0], triple_entry[1])
+    return local_distance <= signal_radius
+
+def find_distress_beacon(dimension_x, dimension_y, distances_list):
+    for x in range(dimension_x + 1):
+        for y in range(dimension_y + 1):
+            print(y)
+            # if all return false, that is the solution
+            running_result = False
+            for sensor in distances_list:
+                running_result = in_range(x, y, sensor)
+                if running_result == True:
+                    break
+
+            if running_result == False:
+                return((x * 4000000) + y)
+            # if no trues, return coords
+
+print(find_distress_beacon(dimension_x, dimension_y, distances_list))
+
 
