@@ -61,26 +61,70 @@ for pair in instructions: # [sensor_x, sensor_y, beacon_x, beacon_y]
 dimension_x = dimension_y = 20 # example input
 dimension_x = dimension_y = 4000000 # real_input
 
+### New plan based on the following post:
+### https://www.reddit.com/r/adventofcode/comments/zmfwg1/2022_day_15_part_2_seekin_for_the_beacon/
+### Follow the perimeter of each box
+
 def in_range(x1, y1, triple_entry):
     signal_radius = triple_entry[2]
     local_distance = manhattan_distance(x1, y1, triple_entry[0], triple_entry[1])
     return local_distance <= signal_radius
 
-def find_distress_beacon(dimension_x, dimension_y, distances_list):
-    for x in range(dimension_x + 1):
-        for y in range(dimension_y + 1):
-            print(y)
-            # if all return false, that is the solution
-            running_result = False
-            for sensor in distances_list:
-                running_result = in_range(x, y, sensor)
-                if running_result == True:
-                    break
+def check_if_in_signal_area(distances_list, coord):
+    # if all return false, that is the solution
+    x = coord[0]
+    y = coord[1]
 
-            if running_result == False:
-                return((x * 4000000) + y)
-            # if no trues, return coords
+    running_result = False
+    for sensor in distances_list:
+        running_result = in_range(x, y, sensor)
+        if running_result == True:
+            break
 
-print(find_distress_beacon(dimension_x, dimension_y, distances_list))
+    if running_result == False:
+        return((x * 4000000) + y)
+        # if no trues, return coords
+    else:
+        return None
+
+def find_distress_beacon_attempt_2(dimension_x, dimension_y, distances_list):
+    for sensor in distances_list:
+        sensor_x = sensor[0]
+        sensor_y = sensor[1]
+        signal_range = sensor[2]
+        # find perimeter
+        for index, value in enumerate(list(range(sensor_x - signal_range - 1, sensor_x + 1))): # x coords
+            # value = x coord
+            coord1 = (value, sensor_y + index)
+            coord2 = (value, sensor_y - index)
+
+            if coord1[0] <= dimension_x and coord1[1] <= dimension_y and coord1[0] >= 0 and coord1[1] >= 0:
+                result = check_if_in_signal_area(distances_list, coord1)
+                if result != None:
+                    return result
+            if coord2[0] <= dimension_x and coord2[1] <= dimension_y and coord2[0] >= 0 and coord2[1] >= 0:
+                result = check_if_in_signal_area(distances_list, coord2)
+                if result != None:
+                    return result
+
+
+        for index, value in enumerate(list(range(sensor_x + 1, sensor_x  + signal_range + 2))):
+            coord1 = (value, sensor_y + signal_range - index)
+            coord2 = (value, sensor_y - (signal_range - index))
+
+            if coord1[0] <= dimension_x and coord1[1] <= dimension_y and coord1[0] >= 0 and coord1[1] >= 0:
+                result = check_if_in_signal_area(distances_list, coord1)
+                if result != None:
+                    return result
+            if coord2[0] <= dimension_x and coord2[1] <= dimension_y and coord2[0] >= 0 and coord2[1] >= 0:
+                result = check_if_in_signal_area(distances_list, coord2)
+                if result != None:
+                    return result
+
+        print("One sensor done", sensor)
+
+print(find_distress_beacon_attempt_2(dimension_x, dimension_y, distances_list))
+
+print("Done!")
 
 
