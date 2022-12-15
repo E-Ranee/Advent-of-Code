@@ -1,7 +1,9 @@
 import re
 
 f = open(f"input.txt", "r")
+dimension_x = dimension_y = 4000000 # real_input
 # f = open(f"example_input.txt", "r")
+# dimension_x = dimension_y = 20 # example input
 data = f.readlines()
 f.close()
 
@@ -58,8 +60,6 @@ for pair in instructions: # [sensor_x, sensor_y, beacon_x, beacon_y]
     distance = manhattan_distance(pair[0], pair[1], pair[2], pair[3])
     distances_list.append( [pair[0], pair[1], distance] )
 
-dimension_x = dimension_y = 20 # example input
-dimension_x = dimension_y = 4000000 # real_input
 
 ### New plan based on the following post:
 ### https://www.reddit.com/r/adventofcode/comments/zmfwg1/2022_day_15_part_2_seekin_for_the_beacon/
@@ -122,9 +122,11 @@ def find_distress_beacon_attempt_2(dimension_x, dimension_y, distances_list):
                     return result
 
         print("One sensor done", sensor)
-
+from time import time
+now = time()
 print(find_distress_beacon_attempt_2(dimension_x, dimension_y, distances_list))
 
 print("Done!")
+print(f"It took {time() - now}s")
 
 
