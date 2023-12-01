@@ -1,4 +1,5 @@
 import re
+from time import time
 
 f = open(f"input.txt", "r")
 dimension_x = dimension_y = 4000000 # real_input
@@ -6,6 +7,8 @@ dimension_x = dimension_y = 4000000 # real_input
 # dimension_x = dimension_y = 20 # example input
 data = f.readlines()
 f.close()
+
+now = time()
 
 instructions = [] # each row takes the form [sensor_x, sensor_y, beacon_x, beacon_y]
 all_coords = []
@@ -20,6 +23,8 @@ for line in data:
     instructions.append(int_list)
     all_coords.append((int_list[0], int_list[1])) # adds sensor coordinates
     all_coords.append((int_list[2], int_list[3])) # adds beacon coordinates
+
+print(f"It took {time() - now}s")
 
 def manhattan_distance(x1, y1, x2, y2):
     return abs(x1 - x2) + abs(y1 - y2)
@@ -51,8 +56,9 @@ def part1(instructions, all_coords, y_level):
     print(len(set(positions_present)))
 
 # part1(instructions, all_coords, 10) # example data
-# part1(instructions, all_coords, 2000000) # real data
-
+now = time()
+part1(instructions, all_coords, 2000000) # real data
+print(f"It took {time() - now}s")
 #####################################################################################
 
 distances_list = [] # [sensor_x, sensor_y, signal_radius]
@@ -122,7 +128,7 @@ def find_distress_beacon_attempt_2(dimension_x, dimension_y, distances_list):
                     return result
 
         print("One sensor done", sensor)
-from time import time
+
 now = time()
 print(find_distress_beacon_attempt_2(dimension_x, dimension_y, distances_list))
 
