@@ -49,6 +49,8 @@ def day1(input_data, max_reds, max_greens, max_blues):
         if max_colours_present["red"] <= max_reds and max_colours_present["blue"] <= max_blues and max_colours_present["green"] <= max_greens:
             list_of_valid_game_IDs.append(game_number)
 
+        # part 2 is to find the minimum number of each colour needed (the maximum seen) and multiply them together
+
         power = max_colours_present["red"] * max_colours_present["blue"] * max_colours_present["green"]
         list_of_powers.append(power)
 
