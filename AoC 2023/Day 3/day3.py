@@ -60,6 +60,8 @@ for row, string in enumerate(rows):
             # reached the end of a number!
             # check around for symbols
             if look_around_for_symbols(rows, current_part_coordinates, int("".join(current_part)), gear_locations): 
+                # part 2 hastily attached here to add the part name and the dict of gear locations so that if the symbol found was an *
+                # then the name and gear can be linked together here
                 # if there is a symbol, add it to the parts found list
                 parts_found.append(int("".join(current_part)))
             # reset the current part + coords ready to search for the next one
