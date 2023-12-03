@@ -13,17 +13,17 @@ for row in data:
 
 # Step 1: extract the information
 
-# example data
+# example data:
 # Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
 # [Game x:] [\d blue|red|green] split on ;
 
 def day1(input_data, max_reds, max_greens, max_blues):
 
     game_number_pattern = "(Game \d+)" # game number is game_number_pattern[5:], works for multidigit numbers of any length
-    colours_pattern = "((\d+) (red|green|blue))"
+    colours_pattern = "((\d+) (red|green|blue))" # more capture groups so that I can get the numbers and words directly
 
-    list_of_valid_game_IDs = []
-    list_of_powers = []
+    list_of_valid_game_IDs = [] # for part 1
+    list_of_powers = [] # for part 2
 
     for game in input_data:
         game_number = int(re.findall(game_number_pattern, game)[0][5:])
