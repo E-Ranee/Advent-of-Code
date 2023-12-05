@@ -49,7 +49,7 @@ for game in rows:
     # working on part 2
     for i in range(matches):
         # make a copy of the next i cards, according to how many copies of the current card you have
-        dict_of_games[game_number + i + 1] += 1 * dict_of_games[game_number]
+        dict_of_games[game_number + i + 1] += 1 * dict_of_games[game_number] # I'm not sure why this doesn't break when we get to the last few scratchcards
 
 number_of_scratchcards = 0 # total the number of iterations of all scratch cards
 for key, value in dict_of_games.items():
