@@ -54,7 +54,4 @@ sol2 = (-b+cmath.sqrt(discriminant))/(2*a)
 lower_bound = math.floor(min(sol1.real,sol2.real))
 upper_bound = math.floor(max(sol1.real,sol2.real))
 
-print(sol1, sol2)
-print(lower_bound, upper_bound)
-
 print("Part 2:", upper_bound-lower_bound)
