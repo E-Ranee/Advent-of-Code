@@ -3,7 +3,7 @@ import collections
 file = "input.txt"
 
 f = open(file, "r")
-data = f.readlines()
+data = f.readlines() # would be improved being just read
 f.close()
 
 counter = collections.Counter(*data)
@@ -17,4 +17,3 @@ for index, char in enumerate(data[0]):
     if floor < 0:
         print("Part 2:", index)
         break
-
