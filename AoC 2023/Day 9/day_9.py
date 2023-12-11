@@ -9,14 +9,14 @@ rows = []
 for row in data:
     rows.append([int(x) for x in row.strip().split()])
 
-def predict_next_values(list_of_ints):
+def predict_next_values(starting_sequence):
     """Recursively generates lists showing the current pattern until a row of all 0s is found, then returns the list of lists found"""
 
-    full_list = [list_of_ints]
+    full_list = [starting_sequence]
 
     differences = []
-    for i in range(len(list_of_ints) - 1):
-        differences.append(list_of_ints[i + 1] - list_of_ints[i]) # difference between adjacent numbers
+    for i in range(len(starting_sequence) - 1):
+        differences.append(starting_sequence[i + 1] - starting_sequence[i]) # difference between adjacent numbers
 
     if set(differences) == {0}:
         full_list.append(differences)
@@ -42,7 +42,7 @@ def extrapolate_pattern(list_of_lists, reversed=False):
             else:
                 temp_list[index] += [temp_list[index-1][-1] + temp_list[index][-1]] # calculates the number to go on the right
 
-    return temp_list[-1][-1] if reversed == False else temp_list[-1][0] # index -1 because we reversed the input and want to get the first element of the list of lists
+    return temp_list[-1][0] if reversed else temp_list[-1][-1] # index -1 because we reversed the input and want to get the first element of the list of lists
 
 def solve_puzzle(input=rows, part2=False):
     
