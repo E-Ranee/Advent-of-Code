@@ -36,7 +36,7 @@ directions_dict = {
     "west": [0, -1] 
 }
 
-reverese_directions_dict = {
+reverse_directions_dict = {
     "south": "north",
     "west": "east",
     "north": "south",
@@ -75,7 +75,7 @@ def check_starting_pipe(direction, data=rows):
     new_pipe = data[new_row][new_col]
     possible_directions = pipe_description_dict[new_pipe]
 
-    reversed_direction = reverese_directions_dict[direction]
+    reversed_direction = reverse_directions_dict[direction]
 
     if reversed_direction in possible_directions:
         return [new_pipe, [new_row, new_col], direction] # returns the name and the coordinates of the new pipe as well as which direction you're travelling in
@@ -85,7 +85,7 @@ def follow_pipe(pipe_name, starting_coordinates, direction): # eg east into a 7
     start_row = starting_coordinates[0]
     start_col = starting_coordinates[1]
 
-    origin_direction = reverese_directions_dict[direction] # eg came from west
+    origin_direction = reverse_directions_dict[direction] # eg came from west
     potential_directions = pipe_description_dict[pipe_name].copy()
     potential_directions.remove(origin_direction)
     destination_direction = potential_directions[0] # eg going south
