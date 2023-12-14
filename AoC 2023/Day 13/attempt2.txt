@@ -9,20 +9,20 @@ success
 success
 success
 success
-fail 0 0
+fail
 success
 success
 success
 success
 success
-fail 0 0
+fail
 success
 success
 success
-fail 0 0
+fail
 success
 success
-fail 0 0
+fail
 success
 success
 success
@@ -40,15 +40,15 @@ success
 success
 success
 success
-fail 0 0
+fail
 success
-fail 0 0
+fail
 success
 success
 success
 success
 success
-fail 0 0
+fail
 success
 success
 success
@@ -69,7 +69,7 @@ success
 success
 success
 success
-fail 0 0
+fail
 success
 success
 success
@@ -90,10 +90,10 @@ success
 success
 success
 success
-fail 0 0
+fail
 success
 success
 success
 success
 success
-fail 0 0
+fail
