@@ -34,72 +34,89 @@ def transpose_list(input_list):
 def check_if_sequential(input_list):
     return set(input_list) == set(range(min(input_list), max(input_list) + 1))
 
+def find_number_bonds(lower_bound, upper_bound):
+    # eg 0, 5
+    pairs = []
+    for i in range(int((upper_bound - lower_bound + 1)/2)): # eg 3
+        pairs.append((lower_bound + i, upper_bound - i))
+    return pairs
+
 def check_for_horizontal_mirror(input_list):
 
-    # which rows are duplicated?
-    counter = collections.Counter(input_list)
-    counts = counter.most_common() # list of tuples ("element", count)
-    repeated_elements = [x[0] for x in counts if x[1] > 1] # element for tuple in counts if occurrences is greater than 1
+    # start at index 0 and check rows sequentially to see if it matches
+    # then compare intermediary rows
+    starting_row = input_list[0]
+    for index, row in enumerate(input_list):
+        if index == 0: # don't want to match with itself
+            continue
+        if index % 2 == 0: # skip every other row (mirror line is always between two rows)
+            continue
+        ### above this is "exit early" checks ###
 
-    # are the repeated elements clustered around a line
-    indices = []
-    likely_spot = []
-    for element in repeated_elements:
-        first_occurrence = input_list.index(element)
-        second_occurrence = input_list.index(element, first_occurrence+1)
-        indices.append(first_occurrence)
-        indices.append(second_occurrence)
+        if row == starting_row:
+            if index == 1: # 0th index of slice of input list
+                return 1 # one row above the mirror line
+            # check inbetween rows
+            # currently index = "3"
+            # check index - 1, check start + 1
 
+            success_state = True
 
-        likely_spot.append((second_occurrence + first_occurrence)/2)
+            index_pairs = find_number_bonds(0, index)
+            for lower, upper in index_pairs[1:]:
+                # pair eg (1,4)
+                if input_list[lower] != input_list[upper]:
+                    success_state = False
+                    break
 
-    if len(indices) > 0:
-        if max(indices) == len(data) - 1 or min(indices) == 0:
-            counter = collections.Counter(likely_spot)
-            counts = counter.most_common()
-            return counts[0][0] + 0.5
+            if success_state:
+                return int((index + 1) / 2)
+    return 0 
 
-    # clustering - are the indices sequential?
-    if len(indices) > 0:
-        if check_if_sequential(indices):
-            mirror_line = (max(indices) + min(indices)) / 2 # will be a number and a half
-            rows_above_mirror_line = mirror_line + 0.5
-        else:
-            return 0
-    else:
-        return 0
-
-    # Are the remaining rows valid?
-    # Need to have some rows outside of the reflection area
-    # On ONE side only
-
-    remaining_row_indices = [x for x in range(len(input_list)) if x not in indices]
-    if check_if_sequential(remaining_row_indices):
-        return rows_above_mirror_line
-    else:
-        return 0
     
 def check_for_vertical_mirror(input_list):
     data = transpose_list(input_list)
-    return check_for_horizontal_mirror(data)
+    check_forwards = check_for_horizontal_mirror(data)
+    if check_forwards == 0:
+        data.reverse()
+        check_backwards = check_for_horizontal_mirror(data)
+        if check_backwards == 0:
+            return 0
+        else:
+            check_forwards = len(data) - check_backwards
+    return check_forwards
 
 def summarise_data(data):
-    vertical_nummber = check_for_vertical_mirror(data)
-    if vertical_nummber == 0:
-        horizontal_number = 100 * check_for_horizontal_mirror(data)
+    horizontal_number = 0
+    vertical_number = 0
+
+    horizontal_check_forwards = check_for_horizontal_mirror(data)
+    if horizontal_check_forwards == 0:
+        reversed_data = data[::-1]
+        horizontal_check_backwards = check_for_horizontal_mirror(reversed_data)
+        if horizontal_check_backwards == 0:
+            vertical_number = check_for_vertical_mirror(data)
+        else:
+            horizontal_number = len(data) - horizontal_check_backwards
+    else:
+        horizontal_number = horizontal_check_forwards
+
+    if vertical_number == 0:
+        horizontal_number *= 100
     else:
         horizontal_number = 0
-    # if vertical_nummber == 0 and horizontal_number == 0:
-    #     print("fail")
-    # else:
-    #     print("success")
-    return horizontal_number + vertical_nummber
+    if vertical_number == 0 and horizontal_number == 0:
+        print("fail")
+    else:
+        print("success")
+    return horizontal_number + vertical_number
 
-total = 0
-for chunk in data:
-    total += int(summarise_data(chunk))
+if __name__ == "__main__":
+    total = 0
+    for chunk in data:
+        total += int(summarise_data(chunk))
 
-print("Part 1:", total)
+    print("Part 1:", total)
 
 
 ### First broke on an input with a row repeated 3 times
