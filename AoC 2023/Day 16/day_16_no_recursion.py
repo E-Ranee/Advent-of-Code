@@ -1,7 +1,6 @@
 
 from enum import Enum
-import sys
-sys.setrecursionlimit(3000)
+from pprint import pprint
 
 file = "input.txt"
 # file = "test.txt"
@@ -64,9 +63,9 @@ def move_beam(direction_beam_is_moving: CardinalDirection, current_position_of_b
     current_col = current_position_of_beam[1]
 
     if current_row < 0 or current_row >= len(data):
-        return
+        return []
     if current_col < 0 or current_col >= len(data[0]):
-        return
+        return []
     
     current_tile = data[current_row][current_col]
 
@@ -74,7 +73,7 @@ def move_beam(direction_beam_is_moving: CardinalDirection, current_position_of_b
     # set current position to energised
     if current_position_of_beam in energised_tiles:
         if direction_beam_is_moving in energised_tiles[current_position_of_beam]:
-            return
+            return []
         else:
             energised_tiles[current_position_of_beam].append(direction_beam_is_moving)
     else: 
@@ -84,32 +83,62 @@ def move_beam(direction_beam_is_moving: CardinalDirection, current_position_of_b
     if current_tile == "|":
         if direction_beam_is_moving == CardinalDirection.EAST or direction_beam_is_moving == CardinalDirection.WEST:
             # splits into two
-            move_beam(CardinalDirection.NORTH, (current_row - 1, current_col))
-            move_beam(CardinalDirection.SOUTH, (current_row + 1, current_col))
-            return
+            return [
+                (CardinalDirection.NORTH, (current_row - 1, current_col)),
+                (CardinalDirection.SOUTH, (current_row + 1, current_col))
+            ]
     elif current_tile == "-":
         if direction_beam_is_moving == CardinalDirection.NORTH or direction_beam_is_moving == CardinalDirection.SOUTH:
             # splits into two
-            move_beam(CardinalDirection.EAST, (current_row, current_col + 1))
-            move_beam(CardinalDirection.WEST, (current_row, current_col - 1))
-            return
+
+            return [
+                (CardinalDirection.EAST, (current_row, current_col + 1)),
+                (CardinalDirection.WEST, (current_row, current_col - 1))
+            ]
 
     # if empty space
     if current_tile == "." or current_tile == "|" or current_tile == "-":
-        move_beam(direction_beam_is_moving, next_tile_coordinates(direction_beam_is_moving, current_position_of_beam))
+        return [(direction_beam_is_moving, next_tile_coordinates(direction_beam_is_moving, current_position_of_beam))]
 
     # if it encounters a mirror
     elif current_tile == "/":
         # change direction using mirror_forwardslash dict
         changed_direction = mirror_forwardslash[direction_beam_is_moving]
-        move_beam(changed_direction, next_tile_coordinates(changed_direction, current_position_of_beam))
+        return [(changed_direction, next_tile_coordinates(changed_direction, current_position_of_beam))]
     elif current_tile == "\\":
         # change direction using mirror_backslash dict
         changed_direction = mirror_backslash[direction_beam_is_moving]
-        move_beam(changed_direction, next_tile_coordinates(changed_direction, current_position_of_beam))
+        return [(changed_direction, next_tile_coordinates(changed_direction, current_position_of_beam))]
     else:
         raise Exception("An unexpected case occurred!")
 
-move_beam(CardinalDirection.EAST, (0,0))
-print(energised_tiles)
-print(len(energised_tiles))
+
+def get_energised_count(starting_tuple):
+    global energised_tiles
+    live_beams = [starting_tuple]
+    while len(live_beams) > 0:
+        temp_beams = []
+        for beam in live_beams:
+            temp_beams += move_beam(beam[0], beam[1])
+        live_beams = temp_beams
+
+    number_of_tiles = len(energised_tiles)
+    energised_tiles = {}
+
+    return number_of_tiles
+
+entry_points = []
+for row_num in range(len(data)):
+    entry_points.append((CardinalDirection.EAST, (row_num, 0)))
+    entry_points.append((CardinalDirection.WEST, (row_num, len(data[0])-1)))
+for col_num in range(len(data[0])):
+    entry_points.append((CardinalDirection.SOUTH, (0, col_num)))
+    entry_points.append((CardinalDirection.NORTH, (len(data)-1, col_num)))
+
+max_energised_number = 0
+for point in entry_points:
+    energised_total = get_energised_count(point)
+    max_energised_number = max(max_energised_number, energised_total)
+
+print("Part 1:", get_energised_count((CardinalDirection.EAST, (0,0))))
+print("Part 2:", max_energised_number)
