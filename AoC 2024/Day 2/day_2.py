@@ -2,6 +2,7 @@ file = "input.txt"
 # file = "test.txt"
 # file = "test2.txt"
 # file = "test3.txt"
+# file = "test4.txt"
 
 f = open(file, "r")
 file_data = f.readlines()
@@ -59,8 +60,24 @@ def problem_dampened_safety_check(report_list):
     if report_list[0] <= report_list[1]: # is the first number less than the second number?
         new_report.append(report_list[0])
     else: 
-        print(f"removed {report_list[0]}")
-        removed_numbers += 1
+        # is the first number less than the third number?
+        if report_list[0] <= report_list[2]: # [2, 0, 4, 5, 6] needs to drop the 0 not the 2
+            # check the difference
+            # HYPOTHETICALLY WE KEEP CURRENT NUMBER
+            keep_first = report_list[2] - report_list[0] # third number - first number
+            keep_second = report_list[2] - report_list[1] # third number - second number
+            if keep_first < 0: # if third number is less than first number, ditch first number
+                print(f"removed {report_list[0]}")
+                removed_numbers += 1 
+            elif abs(keep_second) > 3: # first number is bigger than second number but not the third. 
+                new_report.append(report_list[0]) #If jump from 2nd to 3rd too big, keep first
+            else:
+                print(f"removed {report_list[0]}") # if jump from 2nd to 3rd okay, ditch first
+                removed_numbers += 1 
+
+        else:
+            print(f"removed {report_list[0]}")
+            removed_numbers += 1
 
     for i in range(len(report_list)-1):
         current_number = report_list[i]
@@ -86,7 +103,10 @@ def problem_dampened_safety_check(report_list):
                 # HYPOTHETICALLY WE KEEP CURRENT NUMBER
                 prev_diff = current_number - previous_number
                 next_diff = report_list[i+2] - current_number
-                if prev_diff <= 3 and next_diff <= 3:
+                if next_diff < 0:
+                    print(f"removed {current_number}")
+                    removed_numbers += 1 
+                elif prev_diff <= 3 and next_diff <= 3:
                     new_report.append(current_number)
                 else:
                     print(f"removed {current_number}")
@@ -115,7 +135,7 @@ def problem_dampened_safety_check(report_list):
     # Check that this produces a sorted list
     is_ascending = new_report == sorted(new_report)
 
-    if is_ascending and removed_numbers <= 1:
+    if is_ascending and len(report_list) - len(new_report) <= 1:
         print(new_report, "is ascending")
 
     else:
@@ -125,11 +145,26 @@ def problem_dampened_safety_check(report_list):
         new_report = []
         removed_numbers = 0
 
-        if report_list[0] >= report_list[1]: # is the first number more than the second number?
+        if report_list[0] >= report_list[1]: # is the first number bigger than the second number?
             new_report.append(report_list[0])
-        else:
-            print(f"removed {report_list[0]}")
-            removed_numbers += 1
+        else: 
+            # is the first number bigger than the third number?
+            if report_list[0] >= report_list[2]: 
+                # check the difference
+                # HYPOTHETICALLY WE KEEP CURRENT NUMBER
+                keep_first = report_list[0] - report_list[2]  
+                keep_second = report_list[1] - report_list[2] 
+                if keep_first < 0: # if third number is more than first number, ditch first number
+                    print(f"removed {report_list[0]}")
+                    removed_numbers += 1 
+                elif abs(keep_second) > 3: # first number is smaller than second number but not the third. 
+                    new_report.append(report_list[0]) #If jump from 2nd to 3rd too big, keep first
+                else:
+                    print(f"removed {report_list[0]}") # if jump from 2nd to 3rd okay, ditch first
+                    removed_numbers += 1 
+            else:
+                print(f"removed {report_list[0]}")
+                removed_numbers += 1
 
         for i in range(len(report_list)-1):
             current_number = report_list[i]
@@ -230,4 +265,4 @@ print("-------------")
 print(safe_reports)
 print(problem_dampened_safe_reports)
 
-# safety_check([1, 2, 3, 9, 4, 5], part2=True)
+# safety_check([2, 0, 4, 5, 6], part2=True)
