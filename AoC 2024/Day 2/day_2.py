@@ -1,6 +1,7 @@
 file = "input.txt"
 # file = "test.txt"
 # file = "test2.txt"
+# file = "test3.txt"
 
 f = open(file, "r")
 file_data = f.readlines()
@@ -62,12 +63,46 @@ def problem_dampened_safety_check(report_list):
         removed_numbers += 1
 
     for i in range(len(report_list)-1):
+        current_number = report_list[i]
+        next_number = report_list[i+1]
+        previous_number = 0 if new_report == [] else new_report[-1]
+
         if i == 0:
             pass
-        elif report_list[i] <= report_list[i+1]: # is less than the next number
-            new_report.append(report_list[i])
+        elif new_report == []:
+            new_report.append(current_number)
+
+        elif current_number >= previous_number and current_number <= next_number: # if neighbours are ordered, add to list
+            new_report.append(current_number)
+
+        elif current_number >= previous_number and next_number <= previous_number: # if next one lower, check if it's greater than previous number
+            new_report.append(current_number)
+        elif current_number >= previous_number and next_number >= previous_number:
+            # either number could be the one which needs to be removed
+            # is there a number after the next number
+            if i + 2 <= len(report_list)-1:
+                # there is another number
+                # check the difference between current number and next next number
+                # HYPOTHETICALLY WE KEEP CURRENT NUMBER
+                prev_diff = current_number - previous_number
+                next_diff = report_list[i+2] - current_number
+                if prev_diff <= 3 and next_diff <= 3:
+                    new_report.append(current_number)
+                else:
+                    print(f"removed {current_number}")
+                    removed_numbers += 1 
+            else:
+                # there isn't another number
+                # check if current number is more than 3 different than previous number
+                if current_number - previous_number > 3:
+                    print(f"removed {current_number}") 
+                    removed_numbers += 1
+                else:
+                    new_report.append(current_number)
+
+
         else:
-            print(f"removed {report_list[i]}") 
+            print(f"removed {current_number}") 
             removed_numbers += 1
 
     if len(new_report) > 0:
@@ -97,13 +132,42 @@ def problem_dampened_safety_check(report_list):
             removed_numbers += 1
 
         for i in range(len(report_list)-1):
+            current_number = report_list[i]
+            next_number = report_list[i+1]
+            previous_number = 0 if new_report == [] else new_report[-1]
+
             if i == 0:
                 pass
-            elif report_list[i] >= report_list[i+1]: # is more than the next number
-                new_report.append(report_list[i])
-            else:
-                print(f"removed {report_list[i]}") 
-                removed_numbers += 1
+            elif new_report == []:
+                new_report.append(current_number)
+
+            elif current_number <= previous_number and current_number >= next_number: # if neighbours are ordered, add to list
+                new_report.append(current_number)
+
+            elif current_number <= previous_number and next_number >= previous_number: # if next one higher, check if it's lower than previous number
+                new_report.append(current_number)
+            elif current_number <= previous_number and next_number >= previous_number:
+                # either number could be the one which needs to be removed
+                # is there a number after the next number
+                if i + 2 <= len(report_list)-1:
+                    # there is another number
+                    # check the difference between current number and next next number
+                    # HYPOTHETICALLY WE KEEP CURRENT NUMBER
+                    prev_diff = previous_number - current_number
+                    next_diff = current_number - report_list[i+2]
+                    if prev_diff <= 3 and next_diff <= 3:
+                        new_report.append(current_number)
+                    else:
+                        print(f"removed {current_number}")
+                        removed_numbers += 1 
+                else:
+                    # there isn't another number
+                    # check if current number is more than 3 different than previous number
+                    if previous_number - current_number > 3:
+                        print(f"removed {current_number}") 
+                        removed_numbers += 1
+                    else:
+                        new_report.append(current_number)
 
         if report_list[-1] <= new_report[-1]: # check last digit
             new_report.append(report_list[-1])
@@ -148,7 +212,7 @@ def problem_dampened_safety_check(report_list):
 
     
     if removed_numbers <= 1:
-        print(removed_numbers)
+        print("total removed numbers: " , removed_numbers)
         print(new_report, "SUCCESS Passed the dampened safety checks") 
         return True # passed both checks
     else:
@@ -166,4 +230,4 @@ print("-------------")
 print(safe_reports)
 print(problem_dampened_safe_reports)
 
-# print(safety_check([37, 36, 37, 39, 36], True))
+# safety_check([1, 2, 3, 9, 4, 5], part2=True)
