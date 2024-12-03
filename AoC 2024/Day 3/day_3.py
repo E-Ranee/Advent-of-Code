@@ -12,7 +12,7 @@ for row in file_data:
     data.append(row.strip())
 
 pattern = "mul\((\d+),(\d+)\)" # returns a tuple ('2', '4')
-pattern_part_2 = "mul\(\d+,\d+\)|don't|do" 
+pattern_part_2 = "mul\((\d+),(\d+)\)|(don't)|(do)" 
 
 total = 0
 for row in data:
@@ -25,16 +25,14 @@ print("Part 1:", total)
 total = 0
 enabled = True
 for row in data:
-    result = re.findall(pattern_part_2, row) # warning: contains strings so the multiplications are now a string 'mul(2,4)'
+    result = re.findall(pattern_part_2, row)
     for pair in result:
-        if pair == "do":
+        if pair[3] == "do":
             enabled = True
-        elif pair == "don't":
+        elif pair[2] == "don't":
             enabled = False
         elif enabled:
-            pattern = "\d+"
-            digits = re.findall(pattern, pair)
-            total += int(digits[0]) * int(digits[1])
+            total += int(pair[0]) * int(pair[1])
         else:
             pass
 
