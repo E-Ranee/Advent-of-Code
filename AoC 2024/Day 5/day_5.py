@@ -25,12 +25,12 @@ page_ordering_rules = []
 update_page_numbers = []
 
 for row in file_data:
-    if row.__contains__("|"):
+    if "|" in row:
         # needs to be an ordered pair
         # remove new line characters, split on pipe character, turn list of strings into ints
         page_ordering_rules.append([int(x) for x in row.strip().split("|")])
     elif row == "\n":
-        ...
+        pass
     else:
         # remove new line characters, split on comma, turn to list of ints
         update_page_numbers.append([int(x) for x in row.strip().split(",")])
@@ -47,7 +47,6 @@ def get_relevant_rules(booklet, page_ordering_rules):
 def check_booklet_against_rules(booklet, page_ordering_rules):
     list_of_relevant_rules = get_relevant_rules(booklet, page_ordering_rules)
     # we have the rules where both numbers are in the booklet. Time to compare them to the booklet
-    times_failed_rule = 0
     list_of_failed_rules = []
 
     for rule in list_of_relevant_rules:
@@ -56,13 +55,9 @@ def check_booklet_against_rules(booklet, page_ordering_rules):
             if page in rule:
                 relevant_pages.append(page)
         if relevant_pages != rule:
-            times_failed_rule += 1
             list_of_failed_rules.append(rule)
 
-    if times_failed_rule == 0:
-        return (booklet, [])
-    else:
-        return (booklet, list_of_failed_rules)
+    return (booklet, list_of_failed_rules)
 
 total_middle_pages = 0
 failed_booklets = []
