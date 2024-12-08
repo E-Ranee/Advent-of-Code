@@ -85,10 +85,10 @@ def get_antinode_locations(antenna_1, antenna_2, part2=False):
 list_of_antinode_locations = []
 part2_list_of_antinode_locations = []
 
-for list_of_locations in antenna_locations.values(): # format '#': [[1, 3], [2, 0], [6, 2]]
+for list_of_locations in antenna_locations.values(): #  antenna_locarions format '#': [[1, 3], [2, 0], [6, 2]]
     # we have the list of locations, now to compare each item in the list to the other items in the list
-    list_of_pairs = list(combinations(list_of_locations, 2))
-    for pair in list_of_pairs:
+    list_of_pairs = list(combinations(list_of_locations, 2)) # every pair of two antennas
+    for pair in list_of_pairs: # individual pair of antennas
         list_of_antinode_locations += get_antinode_locations(pair[0], pair[1]) # may include duplicates
         part2_list_of_antinode_locations += get_antinode_locations(pair[0], pair[1], part2=True) # may include duplicates
 # remove duplicate values
