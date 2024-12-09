@@ -1,5 +1,4 @@
 from time import perf_counter
-from collections import Counter
 
 # after import lines
 timer_script_start=perf_counter()
@@ -19,6 +18,7 @@ for row in file_data: # just the one row today but this still works
 ################################ EXPANDING THE INPUT ###########################
 individual_blocks = []
 file_blocks = []
+counter = {}
 file_id = 0
 is_space = False
 number_of_spaces = 0
@@ -27,13 +27,14 @@ for file in data:
         # {file} number of blocks with value "."
         individual_blocks += ["."] * file
         if file > 0:
-            file_blocks += ["." * file]
+            file_blocks.append([".", file]) # part 2
         number_of_spaces += file
         is_space = False
     else:
         # {file} number of blocks with value {file_id}
         individual_blocks += [file_id] * file
-        file_blocks += [str(file_id)*file]
+        file_blocks.append([file_id, file]) # part 2
+        counter[file_id] = file
         file_id += 1
         is_space = True
 
@@ -60,51 +61,62 @@ timer_part1_end=timer_part2_start=perf_counter()
 print(part_1_total)
 
 ################################### PART 2 ####################################
+import copy
 reversed_list = list(range(int(individual_blocks[-1]), 0, -1)) # the indices in reverse order
-counter = Counter([x for x in individual_blocks if x != "."]) # counts how many times each element shows up 
+altered_list = [] # generates from left to right
 
 while len(reversed_list) != 0:
-    print(max(reversed_list), len(file_blocks))
+    if max(reversed_list) % 100 == 0:
+        print(max(reversed_list), len(file_blocks))
+
     found = False
-    if found == False:
-        for index in range(len(file_blocks)):
-            try: 
+    first_space_found = False
+
+
+    for index in range(len(file_blocks)):
+        if found == False:
+            try:
                 file = file_blocks[index]
-                chunk_length = counter[reversed_list[0]] # eg 8 occurs 4 times
-                prev_index = file_blocks.index(str(reversed_list[0])*chunk_length)
 
-                if len(file) == 0:
-                    pass
-                elif file[0] == "." and found == False and index < prev_index:
-                    # found a space
-                    # check rightmost chunk to see if it'll fit
-                    if len(file) >= counter[reversed_list[0]]: # it fits
-                        found = True
-                        remainder = len(file) - chunk_length # any spare spaces
+                if first_space_found == False and file[0] != ".":
+                    altered_list.append(file)
+                    file_blocks.pop(0)
+                    found = True
+                elif first_space_found == False and file[0] == ".":
+                    first_space_found = True
 
-                        
-                        # Remove the existing chunk and CONCATONATE THE SPACES
-                        file_blocks[prev_index] = "." * chunk_length # set old chunk to be spaces
-                        # if next block is a space, concatonate (if not end of row)
-                        if prev_index == len(file_blocks) - 1:
-                            pass
-                        elif file_blocks[prev_index + 1][0] == ".":
-                            file_blocks[prev_index] += file_blocks.pop(prev_index + 1)
-                        # if previous block is a space, concatonate
-                        if file_blocks[prev_index - 1][0] == ".":
-                            file_blocks[prev_index - 1] += file_blocks.pop(prev_index)
+                if first_space_found == True:
+            
+                    chunk_length = counter[reversed_list[0]]
+                    prev_index = file_blocks.index([reversed_list[0], chunk_length])
 
-                        file_blocks[index] = str(reversed_list.pop(0)) * chunk_length # replace space with new chunk
-                        if remainder > 0: # add a chunk if there's any space remaining
-                            file_blocks.insert(index + 1, "."*remainder)
+                    if file[0] == "." and found == False and index < prev_index:
+                        # found any space
+                        # check to see if the rightmost chunk will fit
+                        if file[1] >= chunk_length:
+                            found = True # it fits
+                            remainder = file[1] - chunk_length # any spare spaces
+
+                            # remove the existing chunk
+                            file_blocks[prev_index] = [".", chunk_length]
+
+                            file_blocks[index] = (reversed_list.pop(0), chunk_length) # replace the space with the new chunk
+                            if remainder > 0: # add an extra chunk if there's any space remaining
+                                file_blocks.insert(index + 1, [".", remainder])
 
             except IndexError: # the list to compare to gets smaller during the loop
                 pass
+            except ValueError: # Ran out of items
+                found = True
+                reversed_list = []
 
     if found == False:
         reversed_list.pop(0)
 
-individual_blocks = "".join(file_blocks)
+final_list = altered_list + file_blocks
+
+individual_blocks = "".join([str(x[0])*x[1] for x in final_list])
+
 part_2_total = 0
 for index, block in enumerate(individual_blocks):
     if block != ".":
