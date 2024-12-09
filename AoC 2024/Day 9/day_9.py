@@ -1,10 +1,12 @@
 from time import perf_counter
+from typing import Dict, List
 
 # after import lines
 timer_script_start=perf_counter()
 timer_parse_start=perf_counter()
 
 file = "input.txt" # 19999 characters long, 94945 total
+file = "time_check.txt"
 # file = "test.txt"
 
 f = open(file, "r")
@@ -17,23 +19,35 @@ for row in file_data: # just the one row today but this still works
 
 ################################ EXPANDING THE INPUT ###########################
 individual_blocks = []
-file_blocks = []
+
+# https://www.reddit.com/r/adventofcode/comments/1ha27bo/comment/m15re2h/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+# Needed help optimising and this comment was clear about how to achieve this
+file_blocks: Dict[int, List[int]] = {} # digit number: [starting index, length]
+space_blocks: Dict[int, List[int]] = {} # length of free space: [list of starting indices with a space of that length]
+
+
 counter = {}
 file_id = 0
 is_space = False
 number_of_spaces = 0
+current_index = 0
 for file in data:
     if is_space:
         # {file} number of blocks with value "."
         individual_blocks += ["."] * file
         if file > 0:
-            file_blocks.append([".", file]) # part 2
+            if file not in space_blocks: # part 2
+                space_blocks[file] = [current_index]
+            else:
+                space_blocks[file].append(current_index)
         number_of_spaces += file
+        current_index += file
         is_space = False
     else:
         # {file} number of blocks with value {file_id}
         individual_blocks += [file_id] * file
-        file_blocks.append([file_id, file]) # part 2
+        file_blocks[file_id] = [current_index, file] # part 2. eg 9: [starts on 5th index, continues for 4 indices]
+        current_index += file
         counter[file_id] = file
         file_id += 1
         is_space = True
@@ -58,75 +72,63 @@ for index, block in enumerate(altered_list):
 
 # solve part 1
 timer_part1_end=timer_part2_start=perf_counter()
-print(part_1_total)
+
 
 ################################### PART 2 ####################################
-import copy
 reversed_list = list(range(int(individual_blocks[-1]), 0, -1)) # the indices in reverse order
-altered_list = [] # generates from left to right
+# Slightly cheating but I checked the input and there is never a space with a length of greater than 9
+# print(file_blocks)
 
-while len(reversed_list) != 0:
-    if max(reversed_list) % 100 == 0:
-        print(max(reversed_list), len(file_blocks))
+for number in reversed_list:
+    number_length = file_blocks[number][1]
+    # print(f"Looking for the first space of {number_length} or higher for the {number}s")
+    # find the first space of that size or higher
+    potential_spaces = []
+    for space_length in range(number_length, 10):
+        try:
+            potential_spaces.append([min(space_blocks[space_length]), space_length]) # appends a list of [index, length] 
+        except KeyError:
+            # it is possible that no spaces of length 2 exist but a space of length 3 does exist
+            pass
+        except ValueError:
+            # it is possible for there to be no spaces left of that length where there used to be some
+            pass
+    # find the minimum index
+    sorted_spaces = sorted(potential_spaces) # sorts by first element in each "tuple" (list)
+    if len(sorted_spaces) == 0:
+        # no valid spaces found
+        pass
+    else:
+        first_space_index, first_space_length = sorted_spaces[0]
+        remaining_space = first_space_length - number_length # the space may be larger than needed
+        # set the new index of the number to occur where the space currently is
+        file_blocks[number] = [first_space_index, number_length]
+        # delete the space from the dictionary for its current length
+        space_blocks[first_space_length].pop(0)
+        # if it has a new length, add it to that entry
+        if remaining_space > 0:
+            space_blocks[remaining_space].append(first_space_index + number_length)
 
-    found = False
-    first_space_found = False
-
-
-    for index in range(len(file_blocks)):
-        if found == False:
-            try:
-                file = file_blocks[index]
-
-                if first_space_found == False and file[0] != ".":
-                    altered_list.append(file)
-                    file_blocks.pop(0)
-                    found = True
-                elif first_space_found == False and file[0] == ".":
-                    first_space_found = True
-
-                if first_space_found == True:
-            
-                    chunk_length = counter[reversed_list[0]]
-                    prev_index = file_blocks.index([reversed_list[0], chunk_length])
-
-                    if file[0] == "." and found == False and index < prev_index:
-                        # found any space
-                        # check to see if the rightmost chunk will fit
-                        if file[1] >= chunk_length:
-                            found = True # it fits
-                            remainder = file[1] - chunk_length # any spare spaces
-
-                            # remove the existing chunk
-                            file_blocks[prev_index] = [".", chunk_length]
-
-                            file_blocks[index] = (reversed_list.pop(0), chunk_length) # replace the space with the new chunk
-                            if remainder > 0: # add an extra chunk if there's any space remaining
-                                file_blocks.insert(index + 1, [".", remainder])
-
-            except IndexError: # the list to compare to gets smaller during the loop
-                pass
-            except ValueError: # Ran out of items
-                found = True
-                reversed_list = []
-
-    if found == False:
-        reversed_list.pop(0)
-
-final_list = altered_list + file_blocks
-
-individual_blocks = "".join([str(x[0])*x[1] for x in final_list])
 
 part_2_total = 0
-for index, block in enumerate(individual_blocks):
-    if block != ".":
-        part_2_total += index * int(block)
+for number, index_length_list in file_blocks.items():
+    for i in range(index_length_list[1]):
+        part_2_total += number * (index_length_list[0] + i)
+
+
+# for index, block in enumerate(individual_blocks):
+#     if block != ".":
+#         part_2_total += index * int(block)
 
 # solve part 2
 timer_part2_end=timer_script_end=perf_counter()
+
+print()
+print(part_1_total)
 print(part_2_total)
 
-print(f"""Execution times (sec)
+print(f"""
+Execution times (sec)
 Parse: {timer_parse_end-timer_parse_start:3.3f}
 Part1: {timer_part1_end-timer_part1_start:3.3f}
 Part2: {timer_part2_end-timer_part2_start:3.3f}
