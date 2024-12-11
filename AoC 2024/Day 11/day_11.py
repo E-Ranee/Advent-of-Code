@@ -17,12 +17,7 @@ data: List[int] = [int(x) for x in file_data[0].strip().split()] # remove spaces
 # after processing input and running past functions
 timer_parse_end=timer_part2_start=perf_counter()
 
-
-
-
-############################ PART 2 ##########################
-
-
+############################ PARTS 1 AND 2 ##########################
 
 # solution based on this comment https://www.reddit.com/r/adventofcode/comments/1hbmu6q/comment/m1ibyi5/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
 """
@@ -36,7 +31,7 @@ and in the next epoch, what they will turn into
 
 known_transformations = {}
 
-def blink(value): # overwrite function
+def blink(value):
     str_version = str(value)
 
     if value in known_transformations:
@@ -58,7 +53,7 @@ def blink(value): # overwrite function
     
     return new_value
 
-dict_of_values = {}
+dict_of_values = {} # initialise dictionary from the input
 for item in data:
     if item in dict_of_values:
         dict_of_values[item] += 1
@@ -69,6 +64,7 @@ part_1_dict_of_values = {}
 
 for i in range(75):
     temp_dict = {}
+    # work through current dictionary and then put the results in a blank dictionary so you don't change this one in place while iterating
     for number_value, frequency in dict_of_values.items():
         result = blink(number_value)
         for new_value in result:
@@ -78,9 +74,10 @@ for i in range(75):
                 temp_dict[new_value] = frequency
     
     dict_of_values = temp_dict
-    if i == 24:
+    if i == 24: # break off early for part 1
         part_1_dict_of_values = temp_dict
 
+# We know how many stones of each value there are so just add up all the frequencies
 part_1_total = 0
 for _, frequency in part_1_dict_of_values.items():
     part_1_total += frequency
@@ -91,8 +88,6 @@ for _, frequency in dict_of_values.items():
     part_2_total += frequency
 print(part_2_total)
 
-
-# solve part 2
 timer_part2_end=timer_script_end=perf_counter()
 
 print(f"""Execution times (sec)
