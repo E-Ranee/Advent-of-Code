@@ -19,7 +19,7 @@ timer_parse_end=timer_part2_start=perf_counter()
 
 ############################ PARTS 1 AND 2 ##########################
 
-# solution based on this comment https://www.reddit.com/r/adventofcode/comments/1hbmu6q/comment/m1ibyi5/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+# solution based on this comment https://www.reddit.com/r/adventofcode/comments/1hbmu6q/comment/m1ibyi5/
 """
 Each stone spawns 1 or 2 stones. 
 But if you have N stones of value X, this will also spawn N new stones or 2*N (depending on digits). 
@@ -29,14 +29,14 @@ So basically you just remember how many stones of which value you have,
 and in the next epoch, what they will turn into
 """
 
-known_transformations = {}
+known_transformations: Dict[int, List[int]] = {}
 
-def blink(value):
-    str_version = str(value)
+def blink(value: int) -> List[int]:
 
     if value in known_transformations:
         return known_transformations[value]
 
+    str_version = str(value)
     if value == 0:
         new_value = [1]
     elif len(str_version) % 2 == 0:
@@ -48,8 +48,7 @@ def blink(value):
     else:
         new_value = [value * 2024]
 
-    if value not in known_transformations:
-        known_transformations[value] = new_value
+    known_transformations[value] = new_value
     
     return new_value
 
