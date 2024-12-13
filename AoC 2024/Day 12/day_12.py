@@ -76,24 +76,15 @@ class Region:
                         internal_corner_square = direction_1
                     else:
                         continue
-                    print(f"starting coords = {current_tile.coords} value = {current_tile.value}")
-                    print(f"neightbour coords = {neighbour.coords} value = {neighbour.value}")
-                    print(f"diagonal coords = {diagonal.coords} value = {diagonal.value}")
-                    print(f"internal square coords = {internal_corner_square.coords} value = {internal_corner_square.value}")
-
+                    
                     if internal_corner_square.value == self.letter_label:
-                        print("Rejected due to being part of region")
-                        print()
                         continue
                     else:
                         internal_corner_direction = ((internal_corner_square.coords[0], internal_corner_square.coords[1]), (neighbour.coords[0], neighbour.coords[1]))
                         if internal_corner_direction not in self.list_of_internal_corners:
                             self.list_of_internal_corners.append(internal_corner_direction)
-                            print("Added to the list")
                         else:
-                            print("Rejected due to being a duplicated")
-
-                    print()
+                            continue
 
 
     def get_number_of_corners(self, coord: List[int]):
@@ -118,29 +109,20 @@ class Region:
         south_west = Direction([coord[0] + 1, coord[1] - 1], self.letter_label) 
         north_west = Direction([coord[0] - 1, coord[1] + 1], self.letter_label)
         diagonal_directions = [x for x in [north_east, south_east, south_west, north_west] if x != "ZZZ"]
-
-        for neighbour in neighbours:
-            print(neighbour.coords)    
+   
         self.get_internal_corner(current_tile, neighbours, diagonal_directions)
 
         if len(neighbours) == 1:
             # only one neightbour
             # it's a sticky out piece
             # changes direction two times so has two external corners
-            print(f"Two external corners found at {current_tile.coords}")
-            print()
             return 2
 
         if len(neighbours) == 2:
             # has two parts of the perimeter
             if north in neighbours and south in neighbours or east in neighbours and west in neighbours: # opposite sides mean no external corners
-                print(f"Neighbours are {neighbours[0].coords} and {neighbours[1].coords}")
-                print(f"Side found at {current_tile.coords}")
-                print()
                 return 0
             else:
-                print(f"One external corner found at {current_tile.coords}")
-                print()
                 return 1
 
         if len(neighbours) == 3:
