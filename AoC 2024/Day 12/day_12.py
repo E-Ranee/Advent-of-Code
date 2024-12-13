@@ -6,7 +6,7 @@ import string
 
 file = "input.txt"
 file = "test.txt"
-file = "test_2.txt"
+# file = "test_2.txt"
 
 f = open(file, "r")
 file_data = f.readlines()
@@ -29,11 +29,19 @@ def get_adjacent_coords(coords: List[int]):
     west = [coords[0], coords[1] - 1] # one col to the left
     return [north, east, south, west]
 
+
+
+class Direction:
+    def __init__(self, coords: List[int], region_label: str):
+        self.coords = coords
+        self.value = value_at_coords_if_within_bounds(coords)
+        self.matches_region_label = self.value == region_label
 class Region:
     def __init__(self, letter_label: str, coordinates: List[int]):
         self.letter_label = letter_label # initialises the letter label field with eg "R"
         self.coordinates = coordinates
         self.area = len(coordinates)
+        self.list_of_internal_corners = []
 
     def get_number_of_neighbours(self, coord: List[int]):
         coords_to_check = get_adjacent_coords(coord) # get the coordinates of the squares in the four directions
@@ -49,49 +57,107 @@ class Region:
             total_perimeter += self.get_number_of_neighbours(square)
         return total_perimeter
 
+    def get_internal_corner(self, current_tile: Direction, neighbours: Direction, diagonal_directions: Direction):
+        for neighbour in neighbours:
+            for diagonal in diagonal_directions:
+                if diagonal.value == self.letter_label:
+                    # if starting tile, neighbour, diagonal form a right angle:
+                    start_x, start_y = current_tile.coords
+                    diagonal_x, diagonal_y = diagonal.coords
+
+                    direction_1 = Direction([start_x, diagonal_y], self.letter_label)
+                    direction_2 = Direction([diagonal_x, start_y], self.letter_label)
+
+                    internal_corner_square = None
+
+                    if neighbour.coords == direction_1.coords:
+                        internal_corner_square = direction_2
+                    elif neighbour.coords == direction_2.coords:
+                        internal_corner_square = direction_1
+                    else:
+                        break
+                    print(f"starting coords = {current_tile.coords} value = {current_tile.value}")
+                    print(f"neightbour coords = {neighbour.coords} value = {neighbour.value}")
+                    print(f"diagonal coords = {diagonal.coords} value = {diagonal.value}")
+                    print(f"internal square coords = {internal_corner_square.coords} value = {internal_corner_square.value}")
+
+                    if internal_corner_square.value == self.letter_label:
+                        print("Rejected due to being part of region")
+                        print()
+                        return
+                    else:
+                        internal_corner_direction = ((internal_corner_square.coords[0], internal_corner_square.coords[1]), (neighbour.coords[0], neighbour.coords[1]))
+                        if internal_corner_direction not in self.list_of_internal_corners:
+                            self.list_of_internal_corners.append(internal_corner_direction)
+                            print("Added to the list")
+                        else:
+                            print("Rejected due to being a duplicated")
+
+                    print()
+
+
     def get_number_of_corners(self, coord: List[int]):
-        north, east, south, west = get_adjacent_coords(coord) # get the coordinates of the squares in the four directions
+        cardinal_directions = get_adjacent_coords(coord) # get the coordinates of the squares in the four directions
 
-        n = value_at_coords_if_within_bounds(north) == self.letter_label # true if same
-        e = value_at_coords_if_within_bounds(east) == self.letter_label
-        s = value_at_coords_if_within_bounds(south) == self.letter_label
-        w = value_at_coords_if_within_bounds(west) == self.letter_label
+        north = Direction(cardinal_directions[0], self.letter_label)
+        east = Direction(cardinal_directions[1], self.letter_label)
+        south = Direction(cardinal_directions[2], self.letter_label)
+        west = Direction(cardinal_directions[3], self.letter_label)
 
-        if sum([n, e, s, w]) == 0:
+        neighbours = [x for x in [north, east, south, west] if x.matches_region_label]
+
+        if len(neighbours) == 0:
             # no neighbours
             # it's an orphaned piece
             return 4
+        
+        
+        current_tile = Direction(coord, self.letter_label)
+        north_east = Direction([coord[0] - 1, coord[1] + 1], self.letter_label)
+        south_east = Direction([coord[0] + 1, coord[1] + 1], self.letter_label)
+        south_west = Direction([coord[0] + 1, coord[1] - 1], self.letter_label) 
+        north_west = Direction([coord[0] - 1, coord[1] + 1], self.letter_label)
+        diagonal_directions = [x for x in [north_east, south_east, south_west, north_west] if x != "ZZZ"]
 
-        if sum([n, e, s, w]) == 1:
+        for neighbour in neighbours:
+            print(neighbour.coords)    
+        self.get_internal_corner(current_tile, neighbours, diagonal_directions)
+
+        if len(neighbours) == 1:
             # only one neightbour
             # it's a sticky out piece
-            # changes direction two times
+            # changes direction two times so has two external corners
+            print(f"Two external corners found at {current_tile.coords}")
+            print()
             return 2
 
-        if sum([n, e, s, w]) == 2:
+        if len(neighbours) == 2:
             # has two parts of the perimeter
-            if n and s or e and w:
-                # opposite sides means it's not a corner
-                # unless there's an internal region
+            if north in neighbours and south in neighbours or east in neighbours and west in neighbours: # opposite sides mean no external corners
+                print(f"Neighbours are {neighbours[0].coords} and {neighbours[1].coords}")
+                print(f"Side found at {current_tile.coords}")
+                print()
                 return 0
             else:
+                print(f"One external corner found at {current_tile.coords}")
+                print()
                 return 1
 
-        if sum([n, e, s, w]) == 4 or sum([n, e, s, w]) == 3:
-            # three or four neighbours means it's an internal piece or a side piece
+        if len(neighbours) == 3:
+            # three corners means it's a side piece = no extenal corners
             # not a corner unless there's an internal region
+            return 0
+    
+        else: # 4 neighbours = internal piece with no external or internal corners
             return 0
 
     def get_number_of_sides(self):
         total_number_of_sides = 0
         for square in self.coordinates:
             total_number_of_sides += self.get_number_of_corners(square)
-
-        # total number of sides corresponds to all the interal corners of the shape, whose angle would be 90 degrees
-        # the total internal angle of the shape would be 360 degrees
-        # the external corners would be equal to the total angle inside the shape - 360 divided by 90 degrees
-        # add the number of internal corners to the number of external corners 
-        return int(((total_number_of_sides * 90 - 360) / 90) + total_number_of_sides)
+            
+        print(f"total external sides = {total_number_of_sides}, total internal sides = {len(self.list_of_internal_corners)}")
+        return total_number_of_sides + len(self.list_of_internal_corners)
 
 alphabet = string.ascii_uppercase
 
@@ -114,6 +180,7 @@ print(f"Part 1: {fence_cost}")
 
 fence_cost = 0
 for region in list_of_regions:
-    print(f"{region.letter_label} with price {region.area} x {region.get_number_of_sides()} = {region.area * region.get_number_of_sides()}")
-    fence_cost += region.area * region.get_number_of_sides()
+    if region.letter_label == "E":
+        # print(f"{region.letter_label} with price {region.area} x {region.get_number_of_sides()} = {region.area * region.get_number_of_sides()}")
+        fence_cost += region.area * region.get_number_of_sides()
 print(f"Part 2: {fence_cost}")
