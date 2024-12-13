@@ -5,7 +5,7 @@ from scipy.ndimage import label
 import string
 
 file = "input.txt"
-file = "test.txt"
+# file = "test.txt"
 # file = "test_2.txt"
 
 f = open(file, "r")
@@ -75,7 +75,7 @@ class Region:
                     elif neighbour.coords == direction_2.coords:
                         internal_corner_square = direction_1
                     else:
-                        break
+                        continue
                     print(f"starting coords = {current_tile.coords} value = {current_tile.value}")
                     print(f"neightbour coords = {neighbour.coords} value = {neighbour.value}")
                     print(f"diagonal coords = {diagonal.coords} value = {diagonal.value}")
@@ -84,7 +84,7 @@ class Region:
                     if internal_corner_square.value == self.letter_label:
                         print("Rejected due to being part of region")
                         print()
-                        return
+                        continue
                     else:
                         internal_corner_direction = ((internal_corner_square.coords[0], internal_corner_square.coords[1]), (neighbour.coords[0], neighbour.coords[1]))
                         if internal_corner_direction not in self.list_of_internal_corners:
@@ -156,7 +156,7 @@ class Region:
         for square in self.coordinates:
             total_number_of_sides += self.get_number_of_corners(square)
             
-        print(f"total external sides = {total_number_of_sides}, total internal sides = {len(self.list_of_internal_corners)}")
+        # print(f"total external sides = {total_number_of_sides}, total internal sides = {len(self.list_of_internal_corners)}")
         return total_number_of_sides + len(self.list_of_internal_corners)
 
 alphabet = string.ascii_uppercase
@@ -180,7 +180,6 @@ print(f"Part 1: {fence_cost}")
 
 fence_cost = 0
 for region in list_of_regions:
-    if region.letter_label == "E":
-        # print(f"{region.letter_label} with price {region.area} x {region.get_number_of_sides()} = {region.area * region.get_number_of_sides()}")
-        fence_cost += region.area * region.get_number_of_sides()
+    # print(f"{region.letter_label} with price {region.area} x {region.get_number_of_sides()} = {region.area * region.get_number_of_sides()}")
+    fence_cost += region.area * region.get_number_of_sides()
 print(f"Part 2: {fence_cost}")
