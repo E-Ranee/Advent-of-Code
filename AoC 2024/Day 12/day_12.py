@@ -1,8 +1,12 @@
-from typing import List, Dict
+from typing import List, Tuple
 from time import perf_counter
 import numpy as np
 from scipy.ndimage import label
 import string
+
+# after import lines
+timer_script_start=perf_counter()
+timer_parse_start=perf_counter()
 
 file = "input.txt"
 # file = "test.txt"
@@ -29,8 +33,6 @@ def get_adjacent_coords(coords: List[int]):
     west = [coords[0], coords[1] - 1] # one col to the left
     return [north, east, south, west]
 
-
-
 class Direction:
     def __init__(self, coords: List[int], region_label: str):
         self.coords = coords
@@ -41,7 +43,7 @@ class Region:
         self.letter_label = letter_label # initialises the letter label field with eg "R"
         self.coordinates = coordinates
         self.area = len(coordinates)
-        self.list_of_internal_corners = []
+        self.list_of_internal_corners: List[Tuple[Tuple[int]]] = [] # This will be the list of pairs of coordinates to form a kind of vector pointing at the corner
 
     def get_number_of_neighbours(self, coord: List[int]):
         coords_to_check = get_adjacent_coords(coord) # get the coordinates of the squares in the four directions
@@ -58,29 +60,38 @@ class Region:
         return total_perimeter
 
     def get_internal_corner(self, current_tile: Direction, neighbours: Direction, diagonal_directions: Direction):
+        """This works by forming a 2x2 grid of the starting square, a neighbouring square, a diagonal square and fourth square
+        If the first three form a right angle within the region and the fourth square is not part of the region, an internal corner is present
+        One square could have two internal corners so a tuple is added to the list (fourth square coords, neighbour square coords)
+        This is the starting point and direction of corner"""
         for neighbour in neighbours:
             for diagonal in diagonal_directions:
+                # check if the diagonal is actually part of the region
                 if diagonal.value == self.letter_label:
-                    # if starting tile, neighbour, diagonal form a right angle:
+                    # Check if starting tile, neighbour, diagonal form a right angle:
                     start_x, start_y = current_tile.coords
                     diagonal_x, diagonal_y = diagonal.coords
 
+                    # square to check is in one of the coordinates that isn't the starting square or diagonal square
                     direction_1 = Direction([start_x, diagonal_y], self.letter_label)
                     direction_2 = Direction([diagonal_x, start_y], self.letter_label)
 
                     internal_corner_square = None
 
+                    # square to check is whichever coordinate ISN'T the neighbour square
                     if neighbour.coords == direction_1.coords:
                         internal_corner_square = direction_2
                     elif neighbour.coords == direction_2.coords:
                         internal_corner_square = direction_1
                     else:
                         continue
-                    
+
                     if internal_corner_square.value == self.letter_label:
+                        # square is part of the region so no internal corner present
                         continue
                     else:
                         internal_corner_direction = ((internal_corner_square.coords[0], internal_corner_square.coords[1]), (neighbour.coords[0], neighbour.coords[1]))
+                        # The same corner can be found multiple times (switching the starting square and diagonal) so only add it if it's new
                         if internal_corner_direction not in self.list_of_internal_corners:
                             self.list_of_internal_corners.append(internal_corner_direction)
                         else:
@@ -134,12 +145,11 @@ class Region:
             return 0
 
     def get_number_of_sides(self):
-        total_number_of_sides = 0
+        external_corner_total = 0
         for square in self.coordinates:
-            total_number_of_sides += self.get_number_of_corners(square)
-            
-        # print(f"total external sides = {total_number_of_sides}, total internal sides = {len(self.list_of_internal_corners)}")
-        return total_number_of_sides + len(self.list_of_internal_corners)
+            external_corner_total += self.get_number_of_corners(square)
+        internal_corner_total = len(self.list_of_internal_corners)
+        return external_corner_total + internal_corner_total
 
 alphabet = string.ascii_uppercase
 
@@ -154,14 +164,30 @@ for letter in alphabet:
             new_region = Region(letter, coords) # create a region object and add it to the list
             list_of_regions.append(new_region)
 
+# after processing input and running past functions
+timer_parse_end=timer_part1_start=perf_counter()
+
 # we now have a list of every region
 fence_cost = 0
 for region in list_of_regions:
     fence_cost += region.area * region.get_perimeter()
 print(f"Part 1: {fence_cost}")
 
+# solve part 1
+timer_part1_end=timer_part2_start=perf_counter()
+
 fence_cost = 0
 for region in list_of_regions:
     # print(f"{region.letter_label} with price {region.area} x {region.get_number_of_sides()} = {region.area * region.get_number_of_sides()}")
     fence_cost += region.area * region.get_number_of_sides()
 print(f"Part 2: {fence_cost}")
+
+# solve part 2
+timer_part2_end=timer_script_end=perf_counter()
+
+print(f"""
+Execution times (sec)
+Parse: {timer_parse_end-timer_parse_start:3.3f}
+Part1: {timer_part1_end-timer_part1_start:3.3f}
+Part2: {timer_part2_end-timer_part2_start:3.3f}
+Total: {timer_script_end-timer_script_start:3.3f}""")
